@@ -29,12 +29,7 @@
 <div id="pubs">Loading publications…</div>
 
 <script>
-fetch(
-  "https://services.libis.be/lirias/publist" +
-  "?unit=50000679&start=0&count=20&sort=year%20desc"
-)
-.then(res => res.json())
-.then(data => {
+function liriasCallback(data) {
   const container = document.getElementById("pubs");
   container.innerHTML = "";
 
@@ -48,11 +43,11 @@ fetch(
     div.className = "pub";
 
     const title = pub.liriasUrl
-      ? `<a href="${pub.liriasUrl}" target="_blank">${pub.title}</a>`
+      ? `<a href="${pub.liriasUrl}" target="_blank" rel="noopener">${pub.title}</a>`
       : pub.title;
 
     div.innerHTML = `
-      <div class="title">${title}</div>
+      <div class="title">${title || "Untitled publication"}</div>
       <div class="meta">
         ${pub.authors || ""}${pub.year ? " • " + pub.year : ""}
       </div>
@@ -60,12 +55,10 @@ fetch(
 
     container.appendChild(div);
   });
-})
-.catch(() => {
-  document.getElementById("pubs").textContent =
-    "Unable to load publications.";
-});
-</script>
+}
 
-</body>
-</html>
+// JSONP request
+const script = document.createElement("script");
+script.src =
+  "https://services.libis.be/lirias/publist" +
+  "?unit=50000679
