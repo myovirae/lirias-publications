@@ -29,8 +29,10 @@
 <div id="pubs">Loading publications…</div>
 
 <script>
-// 1️⃣ Define the callback function that LIRIAS will call
+// 1️⃣ Callback function for JSONP
 function liriasSearchCallback(result) {
+  console.log("JSONP callback fired!", result); // 🔹 Debug line
+
   const container = document.getElementById("pubs");
   container.innerHTML = "";
 
@@ -39,10 +41,10 @@ function liriasSearchCallback(result) {
     return;
   }
 
-  // Sort by year descending, take first 20
+  // Sort by year descending, take 20 most recent
   const pubs = result.data
-    .filter(p => p.year)              // only items with a year
-    .sort((a, b) => b.year - a.year)  // newest first
+    .filter(p => p.year)              
+    .sort((a, b) => b.year - a.year)
     .slice(0, 20);
 
   pubs.forEach(pub => {
@@ -65,14 +67,15 @@ function liriasSearchCallback(result) {
   });
 }
 
-// 2️⃣ Create a <script> tag to request JSONP
+// 2️⃣ JSONP request with cache-buster
 const script = document.createElement("script");
 script.src =
   "https://services.libis.be/search" +
   "?institution=lirias" +
   "&step=100" +
   "&query=" + encodeURIComponent("vcollection:50000679") +
-  "&callback=liriasSearchCallback";
+  "&callback=liriasSearchCallback" +
+  "&_=" + new Date().getTime(); // 🔹 cache-buster
 
 document.body.appendChild(script);
 </script>
