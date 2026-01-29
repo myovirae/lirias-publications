@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>LIRIAS Publications</title>
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: #ffffff;
+    background: transparent;
+  }
+  .pub {
+    margin-bottom: 1.2em;
+  }
+  .title a {
+    color: #ffffff;
+    font-weight: 600;
+    text-decoration: underline;
+  }
+  .meta {
+    font-size: 0.9em;
+    opacity: 0.85;
+  }
+</style>
+</head>
+<body>
+
+<div id="pubs">Loading publications…</div>
+
+<script>
+fetch(
+  "https://services.libis.be/lirias/publist" +
+  "?unit=50000679&start=0&count=20&sort=year%20desc"
+)
+.then(res => res.json())
+.then(data => {
+  const container = document.getElementById("pubs");
+  container.innerHTML = "";
+
+  if (!data.publications || data.publications.length === 0) {
+    container.textContent = "No publications available.";
+    return;
+  }
+
+  data.publications.forEach(pub => {
+    const div = document.createElement("div");
+    div.className = "pub";
+
+    const title = pub.liriasUrl
+      ? `<a href="${pub.liriasUrl}" target="_blank">${pub.title}</a>`
+      : pub.title;
+
+    div.innerHTML = `
+      <div class="title">${title}</div>
+      <div class="meta">
+        ${pub.authors || ""}${pub.year ? " • " + pub.year : ""}
+      </div>
+    `;
+
+    container.appendChild(div);
+  });
+})
+.catch(() => {
+  document.getElementById("pubs").textContent =
+    "Unable to load publications.";
+});
+</script>
+
+</body>
+</html>
