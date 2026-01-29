@@ -29,13 +29,53 @@
 <div id="pubs">Loading publications…</div>
 
 <script>
+// 1️⃣ Define the callback function that LIRIAS will call
 function liriasSearchCallback(result) {
   const container = document.getElementById("pubs");
   container.innerHTML = "";
 
-  if (!result.data || result.data.length === 0) {
+  if (!result || !result.data || result.data.length === 0) {
     container.textContent = "No publications available.";
     return;
   }
 
-  // Sort by year desc and take 20 m
+  // Sort by year descending, take first 20
+  const pubs = result.data
+    .filter(p => p.year)              // only items with a year
+    .sort((a, b) => b.year - a.year)  // newest first
+    .slice(0, 20);
+
+  pubs.forEach(pub => {
+    const div = document.createElement("div");
+    div.className = "pub";
+
+    const title = pub.url
+      ? `<a href="${pub.url}" target="_blank" rel="noopener">${pub.title || "Untitled"}</a>`
+      : (pub.title || "Untitled");
+
+    const authors = pub.author || "";
+    const year = pub.year ? ` • ${pub.year}` : "";
+
+    div.innerHTML = `
+      <div class="title">${title}</div>
+      <div class="meta">${authors}${year}</div>
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+// 2️⃣ Create a <script> tag to request JSONP
+const script = document.createElement("script");
+script.src =
+  "https://services.libis.be/search" +
+  "?institution=lirias" +
+  "&step=100" +
+  "&query=" + encodeURIComponent("vcollection:50000679") +
+  "&callback=liriasSearchCallback";
+
+document.body.appendChild(script);
+</script>
+
+</body>
+</html>
