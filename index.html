@@ -29,25 +29,13 @@
 <div id="pubs">Loading publications…</div>
 
 <script>
-const url =
-  "https://services.libis.be/search" +
-  "?institution=lirias" +
-  "&step=100" +
-  "&query=" + encodeURIComponent("vcollection:50000679");
+function liriasSearchCallback(result) {
+  const container = document.getElementById("pubs");
+  container.innerHTML = "";
 
-fetch(url)
-  .then(res => res.json())
-  .then(result => {
-    const container = document.getElementById("pubs");
-    container.innerHTML = "";
+  if (!result.data || result.data.length === 0) {
+    container.textContent = "No publications available.";
+    return;
+  }
 
-    if (!result.data || result.data.length === 0) {
-      container.textContent = "No publications available.";
-      return;
-    }
-
-    // Sort by year (descending) and take first 20
-    const pubs = result.data
-      .filter(p => p.year)
-      .sort((a, b) => b.year - a.year)
-      .slice(0, 20);
+  // Sort by year desc and take 20 m
