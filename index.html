@@ -29,36 +29,25 @@
 <div id="pubs">Loading publications…</div>
 
 <script>
-function liriasCallback(data) {
-  const container = document.getElementById("pubs");
-  container.innerHTML = "";
+const url =
+  "https://services.libis.be/search" +
+  "?institution=lirias" +
+  "&step=100" +
+  "&query=" + encodeURIComponent("vcollection:50000679");
 
-  if (!data.publications || data.publications.length === 0) {
-    container.textContent = "No publications available.";
-    return;
-  }
+fetch(url)
+  .then(res => res.json())
+  .then(result => {
+    const container = document.getElementById("pubs");
+    container.innerHTML = "";
 
-  data.publications.forEach(pub => {
-    const div = document.createElement("div");
-    div.className = "pub";
+    if (!result.data || result.data.length === 0) {
+      container.textContent = "No publications available.";
+      return;
+    }
 
-    const title = pub.liriasUrl
-      ? `<a href="${pub.liriasUrl}" target="_blank" rel="noopener">${pub.title}</a>`
-      : pub.title;
-
-    div.innerHTML = `
-      <div class="title">${title || "Untitled publication"}</div>
-      <div class="meta">
-        ${pub.authors || ""}${pub.year ? " • " + pub.year : ""}
-      </div>
-    `;
-
-    container.appendChild(div);
-  });
-}
-
-// JSONP request
-const script = document.createElement("script");
-script.src =
-  "https://services.libis.be/lirias/publist" +
-  "?unit=50000679
+    // Sort by year (descending) and take first 20
+    const pubs = result.data
+      .filter(p => p.year)
+      .sort((a, b) => b.year - a.year)
+      .slice(0, 20);
